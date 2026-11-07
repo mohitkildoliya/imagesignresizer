@@ -1,0 +1,1308 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline'; img-src blob: data:; connect-src 'none'; font-src 'none'; object-src 'none'; media-src 'none'; form-action 'none';">
+  <title>Exam Photo & Sign Resizer Pro (Offline)</title>
+  <style>
+    :root {
+      --bg-grad-1: #090d16;
+      --bg-grad-2: #111827;
+      --card: rgba(30, 41, 59, 0.78);
+      --card-solid: #1e293b;
+      --card-inner: rgba(51, 65, 85, 0.55);
+      --input-bg: #0f172a;
+      --accent: #3b82f6;
+      --accent-hover: #2563eb;
+      --accent-glow: rgba(59, 130, 246, 0.35);
+      --text: #f8fafc;
+      --muted: #94a3b8;
+      --success: #10b981;
+      --success-bg: rgba(16, 185, 129, 0.15);
+      --danger: #ef4444;
+      --danger-bg: rgba(239, 68, 68, 0.15);
+      --border: rgba(148, 163, 184, 0.18);
+      --radius-xl: 24px;
+      --radius-lg: 18px;
+      --radius-md: 14px;
+      --radius-sm: 10px;
+      --radius-pill: 999px;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    body {
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      background: radial-gradient(circle at top, #1e293b 0%, var(--bg-grad-1) 70%);
+      background-color: var(--bg-grad-1);
+      color: var(--text);
+      min-height: 100vh;
+      padding: 16px 14px 32px;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      max-width: 780px;
+      margin: 0 auto;
+    }
+
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 6px 4px;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .brand-icon {
+      width: 36px;
+      height: 36px;
+      border-radius: 12px;
+      background: linear-gradient(135deg, #3b82f6, #6366f1);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.1rem;
+      box-shadow: 0 4px 14px var(--accent-glow);
+    }
+
+    .brand-title {
+      font-weight: 800;
+      font-size: 1.1rem;
+      letter-spacing: -0.02em;
+    }
+
+    .brand-sub {
+      font-size: 0.72rem;
+      color: var(--muted);
+    }
+
+    .badge {
+      background: var(--success-bg);
+      color: var(--success);
+      border: 1px solid rgba(16, 185, 129, 0.4);
+      font-size: 0.72rem;
+      font-weight: 700;
+      padding: 5px 12px;
+      border-radius: var(--radius-pill);
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+    }
+
+    .card {
+      background: var(--card);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-xl);
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.5);
+    }
+
+    .card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .card-title {
+      font-size: 0.76rem;
+      font-weight: 700;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+    }
+
+    #viewportArea {
+      position: relative;
+      width: 100%;
+      height: 310px;
+      background: #060911;
+      border-radius: var(--radius-lg);
+      overflow: hidden;
+      touch-action: none;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+    }
+
+    #viewportCanvas {
+      width: 100%;
+      height: 100%;
+      display: block;
+    }
+
+    .upload-overlay {
+      position: absolute;
+      inset: 8px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      background: rgba(15, 23, 42, 0.9);
+      border: 2px dashed rgba(56, 189, 248, 0.55);
+      border-radius: var(--radius-md);
+      cursor: pointer;
+      text-align: center;
+      padding: 20px;
+      transition: all 0.2s ease;
+    }
+
+    .upload-overlay:hover {
+      border-color: #38bdf8;
+      background: rgba(15, 23, 42, 0.96);
+    }
+
+    .btn {
+      background: linear-gradient(135deg, var(--accent), var(--accent-hover));
+      color: #fff;
+      border: none;
+      padding: 10px 16px;
+      border-radius: var(--radius-md);
+      font-size: 0.85rem;
+      font-weight: 600;
+      cursor: pointer;
+      text-align: center;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      transition: transform 0.12s ease, opacity 0.15s ease, background 0.15s ease;
+      user-select: none;
+    }
+
+    .btn:active:not(:disabled) {
+      transform: scale(0.97);
+    }
+
+    .btn-secondary {
+      background: var(--card-inner);
+      border: 1px solid var(--border);
+      color: var(--text);
+      border-radius: var(--radius-md);
+    }
+
+    .btn-secondary:hover {
+      background: rgba(71, 85, 105, 0.65);
+    }
+
+    .btn-pill {
+      border-radius: var(--radius-pill);
+      padding: 6px 14px;
+      font-size: 0.78rem;
+    }
+
+    .btn-download {
+      background: linear-gradient(135deg, #10b981, #059669);
+      padding: 15px;
+      font-size: 0.98rem;
+      font-weight: 700;
+      width: 100%;
+      border-radius: var(--radius-lg);
+      box-shadow: 0 6px 20px rgba(16, 185, 129, 0.3);
+    }
+
+    .btn-download:disabled {
+      opacity: 0.4;
+      cursor: not-allowed;
+      box-shadow: none;
+    }
+
+    input[type="number"],
+    input[type="text"],
+    select {
+      background: var(--input-bg);
+      border: 1px solid var(--border);
+      color: var(--text);
+      padding: 10px 12px;
+      border-radius: var(--radius-md);
+      font-size: 0.86rem;
+      width: 100%;
+      outline: none;
+      transition: border-color 0.15s ease, box-shadow 0.15s ease;
+    }
+
+    input[type="number"]:focus,
+    input[type="text"]:focus,
+    select:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px var(--accent-glow);
+    }
+
+    .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+    .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; }
+
+    label {
+      font-size: 0.8rem;
+      font-weight: 600;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 4px;
+      color: #e2e8f0;
+    }
+
+    .hint {
+      font-size: 0.75rem;
+      color: #38bdf8;
+      font-weight: 600;
+      background: rgba(56, 189, 248, 0.12);
+      padding: 2px 8px;
+      border-radius: var(--radius-pill);
+    }
+
+    /* Modern Range Sliders */
+    input[type="range"] {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 100%;
+      height: 8px;
+      background: var(--input-bg);
+      border-radius: var(--radius-pill);
+      border: 1px solid var(--border);
+      outline: none;
+      margin: 4px 0;
+    }
+
+    input[type="range"]::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      background: var(--accent);
+      border: 2px solid #fff;
+      cursor: pointer;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.4);
+    }
+
+    input[type="range"]::-moz-range-thumb {
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      background: var(--accent);
+      border: 2px solid #fff;
+      cursor: pointer;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.4);
+    }
+
+    /* Modern Toggle Switch */
+    .toggle-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: var(--card-inner);
+      padding: 10px 14px;
+      border-radius: var(--radius-md);
+      border: 1px solid var(--border);
+      cursor: pointer;
+      margin-bottom: 0;
+    }
+
+    .toggle-switch {
+      position: relative;
+      width: 44px;
+      height: 24px;
+      flex-shrink: 0;
+    }
+
+    .toggle-switch input {
+      opacity: 0;
+      width: 0;
+      height: 0;
+    }
+
+    .toggle-slider {
+      position: absolute;
+      cursor: pointer;
+      inset: 0;
+      background-color: var(--input-bg);
+      border: 1px solid var(--border);
+      transition: 0.2s;
+      border-radius: var(--radius-pill);
+    }
+
+    .toggle-slider:before {
+      position: absolute;
+      content: "";
+      height: 18px;
+      width: 18px;
+      left: 2px;
+      bottom: 2px;
+      background-color: #cbd5e1;
+      transition: 0.2s;
+      border-radius: 50%;
+    }
+
+    .toggle-switch input:checked + .toggle-slider {
+      background-color: var(--accent);
+      border-color: var(--accent);
+    }
+
+    .toggle-switch input:checked + .toggle-slider:before {
+      transform: translateX(20px);
+      background-color: #fff;
+    }
+
+    .sub-panel {
+      background: rgba(15, 23, 42, 0.55);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      padding: 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .stat-bar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      font-size: 0.76rem;
+      align-items: center;
+    }
+
+    .stat-pill {
+      background: var(--card-inner);
+      padding: 6px 12px;
+      border-radius: var(--radius-pill);
+      border: 1px solid var(--border);
+      color: var(--muted);
+    }
+
+    .stat-pill strong {
+      color: var(--text);
+      font-weight: 700;
+    }
+
+    .badge-status {
+      padding: 6px 12px;
+      border-radius: var(--radius-pill);
+      font-weight: 700;
+      font-size: 0.76rem;
+      margin-left: auto;
+    }
+
+    .badge-status.valid {
+      background: var(--success-bg);
+      color: var(--success);
+      border: 1px solid rgba(16, 185, 129, 0.35);
+    }
+
+    .badge-status.invalid {
+      background: var(--danger-bg);
+      color: var(--danger);
+      border: 1px solid rgba(239, 68, 68, 0.35);
+    }
+
+    .hidden { display: none !important; }
+  </style>
+</head>
+<body>
+
+  <input type="file" id="fileInput" accept="image/jpeg,image/png,image/webp,image/bmp" style="display:none;">
+
+  <header>
+    <div class="brand">
+      <div class="brand-icon">&#x1F4F8;</div>
+      <div>
+        <div class="brand-title">Exam Photo &amp; Sign Resizer</div>
+        <div class="brand-sub">Zero-Network CSP &bull; Exact KB &amp; DPI Engine</div>
+      </div>
+    </div>
+    <span class="badge">&#x1F512; 100% Offline &amp; Private</span>
+  </header>
+
+  <!-- 1. VIEWPORT -->
+  <div class="card" style="padding: 12px;">
+    <div id="viewportArea">
+      <canvas id="viewportCanvas"></canvas>
+      <label class="upload-overlay" id="uploadOverlay" for="fileInput">
+        <div style="font-size: 2.4rem; line-height: 1;">&#x1F4C2;</div>
+        <div style="font-size: 1.05rem; font-weight: 700; color: #fff;">Tap or Drop Image Here</div>
+        <div style="font-size: 0.78rem; color: var(--muted);">Processed strictly in local RAM &bull; EXIF &amp; GPS stripped</div>
+        <span class="btn btn-secondary btn-pill" style="margin-top: 4px; pointer-events: none;">Browse Device Files</span>
+      </label>
+    </div>
+    <div style="display: flex; justify-content: space-between; align-items: center; padding: 2px 4px 0;">
+      <span style="font-size: 0.74rem; color: var(--muted);">Drag = Pan &bull; Pinch / Scroll = Zoom</span>
+      <label for="fileInput" class="btn btn-secondary btn-pill" style="cursor:pointer; margin:0;">
+        Change Image
+      </label>
+    </div>
+  </div>
+
+  <!-- 2. EXAM PRESETS -->
+  <div class="card">
+    <div class="card-header">
+      <span class="card-title">1. Exam Standard &amp; Dimensions</span>
+    </div>
+    <div>
+      <label for="examPreset">Select Specification Preset</label>
+      <select id="examPreset">
+        <option value="ssc_photo" selected>SSC Photo (3.5 × 4.5 cm | 20–50 KB)</option>
+        <option value="ssc_sign">SSC Signature (4.0 × 2.0 cm | 10–20 KB)</option>
+        <option value="ibps_photo">IBPS / SBI / RRB Photo (200 × 230 px | 20–50 KB)</option>
+        <option value="ibps_sign">IBPS / SBI / RRB Signature (140 × 60 px | 10–20 KB)</option>
+        <option value="rrb_photo">Railway (RRB) Photo (3.5 × 4.5 cm | 30–70 KB)</option>
+        <option value="agniveer_photo">Army Agniveer Photo (3.5 × 4.5 cm | 10–50 KB)</option>
+        <option value="upsc_preset">UPSC Photo / Sign (350 × 350 px | 20–300 KB)</option>
+        <option value="custom">Custom Specifications</option>
+      </select>
+    </div>
+
+    <div class="grid-3">
+      <div>
+        <label for="targetWidth">Width</label>
+        <input type="number" id="targetWidth" value="3.5" step="any" min="0.1">
+      </div>
+      <div>
+        <label for="targetHeight">Height</label>
+        <input type="number" id="targetHeight" value="4.5" step="any" min="0.1">
+      </div>
+      <div>
+        <label for="targetUnit">Unit</label>
+        <select id="targetUnit">
+          <option value="cm" selected>cm</option>
+          <option value="mm">mm</option>
+          <option value="inch">in</option>
+          <option value="px">px</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="grid-3">
+      <div>
+        <label for="targetDpi">DPI Header</label>
+        <input type="number" id="targetDpi" value="200" min="72" max="1200">
+      </div>
+      <div>
+        <label for="minKb">Min KB</label>
+        <input type="number" id="minKb" value="20" min="1">
+      </div>
+      <div>
+        <label for="maxKb">Max KB</label>
+        <input type="number" id="maxKb" value="50" min="2">
+      </div>
+    </div>
+  </div>
+
+  <!-- 3. PAN, ZOOM & ROTATE -->
+  <div class="card">
+    <div class="card-header">
+      <span class="card-title">2. Position &amp; Orientation</span>
+    </div>
+    <div>
+      <label for="zoomRange">Zoom Scale <span class="hint" id="zoomVal">1.00x</span></label>
+      <input type="range" id="zoomRange" min="0.01" max="5.0" step="0.005" value="1.0">
+    </div>
+
+    <div>
+      <label for="angleRange">Fine Straighten <span class="hint" id="angleVal">0°</span></label>
+      <input type="range" id="angleRange" min="-15" max="15" step="0.5" value="0">
+    </div>
+
+    <div class="grid-3">
+      <button type="button" class="btn btn-secondary" id="btnRotL">&#x21ba; Rotate -90°</button>
+      <button type="button" class="btn btn-secondary" id="btnRotR">&#x21bb; Rotate +90°</button>
+      <button type="button" class="btn btn-secondary" id="btnFit">Auto-Fit Box</button>
+    </div>
+  </div>
+
+  <!-- 4. EXAM TOOLS -->
+  <div class="card">
+    <div class="card-header">
+      <span class="card-title">3. Exam Enhancements (Live Preview)</span>
+    </div>
+
+    <!-- Signature Ink Enhancer -->
+    <div style="display:flex; flex-direction:column; gap:8px;">
+      <label class="toggle-row" for="inkToggle">
+        <span>Clean Signature Paper (Whiten Background)</span>
+        <span class="toggle-switch">
+          <input type="checkbox" id="inkToggle">
+          <span class="toggle-slider"></span>
+        </span>
+      </label>
+      <div id="inkBox" class="sub-panel hidden">
+        <label for="inkThreshold">Paper Whiten Threshold <span class="hint" id="inkVal">170</span></label>
+        <input type="range" id="inkThreshold" min="50" max="235" value="170">
+      </div>
+    </div>
+
+    <!-- Name & Date Stamp -->
+    <div style="display:flex; flex-direction:column; gap:8px;">
+      <label class="toggle-row" for="stampToggle">
+        <span>Add Name &amp; Date Banner on Photo</span>
+        <span class="toggle-switch">
+          <input type="checkbox" id="stampToggle">
+          <span class="toggle-slider"></span>
+        </span>
+      </label>
+      <div id="stampBox" class="sub-panel hidden">
+        <div class="grid-2">
+          <div>
+            <label for="stampName">Candidate Name</label>
+            <input type="text" id="stampName" placeholder="FULL NAME" maxlength="40">
+          </div>
+          <div>
+            <label for="stampDate">Date of Photo</label>
+            <input type="text" id="stampDate" placeholder="DD/MM/YYYY" maxlength="14">
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 5. OUTPUT STATS & DOWNLOAD -->
+  <div class="card">
+    <div class="stat-bar">
+      <span class="stat-pill">Source: <strong id="statInput">N/A</strong></span>
+      <span class="stat-pill">Output: <strong id="statPixels">276 × 354 px</strong></span>
+      <span class="stat-pill">DPI: <strong id="statDpi">200</strong></span>
+      <span class="stat-pill">Quality: <strong id="statQuality">98%</strong></span>
+      <span class="stat-pill">File Size: <strong id="statOutputSize">-- KB</strong></span>
+      <span id="badgeStatus" class="badge-status invalid">Awaiting Image</span>
+    </div>
+
+    <button type="button" class="btn btn-download" id="btnDownload" disabled>
+      Process &amp; Download Exact JPEG
+    </button>
+  </div>
+
+  <script>
+    (function () {
+      "use strict";
+
+      const MIN_ZOOM = 0.01;
+      const MAX_ZOOM = 5.0;
+
+      const state = {
+        image: null,
+        steppedSource: null,
+        steppedRatio: 1,
+        inputUrl: null,
+        lastUrl: null,
+        fileName: "exam_photo.jpg",
+        fileSize: 0,
+        panX: 0,
+        panY: 0,
+        zoom: 1.0,
+        baseRot: 0,
+        fineRot: 0,
+        pixelW: 276,
+        pixelH: 354,
+        dpi: 200,
+        minKb: 20,
+        maxKb: 50,
+        isDrag: false,
+        dragX: 0,
+        dragY: 0,
+        originX: 0,
+        originY: 0
+      };
+
+      const PRESETS = {
+        ssc_photo:      { w: 3.5, h: 4.5, u: "cm", dpi: 200, min: 20, max: 50,  sign: false },
+        ssc_sign:       { w: 4.0, h: 2.0, u: "cm", dpi: 200, min: 10, max: 20,  sign: true  },
+        ibps_photo:     { w: 200, h: 230, u: "px", dpi: 200, min: 20, max: 50,  sign: false },
+        ibps_sign:      { w: 140, h: 60,  u: "px", dpi: 200, min: 10, max: 20,  sign: true  },
+        rrb_photo:      { w: 3.5, h: 4.5, u: "cm", dpi: 200, min: 30, max: 70,  sign: false },
+        agniveer_photo: { w: 3.5, h: 4.5, u: "cm", dpi: 200, min: 10, max: 50,  sign: false },
+        upsc_preset:    { w: 350, h: 350, u: "px", dpi: 200, min: 20, max: 300, sign: false }
+      };
+
+      const fileInput = document.getElementById("fileInput");
+      const uploadOverlay = document.getElementById("uploadOverlay");
+      const viewportArea = document.getElementById("viewportArea");
+      const canvas = document.getElementById("viewportCanvas");
+      const ctx = canvas.getContext("2d");
+
+      const examPreset = document.getElementById("examPreset");
+      const targetWidth = document.getElementById("targetWidth");
+      const targetHeight = document.getElementById("targetHeight");
+      const targetUnit = document.getElementById("targetUnit");
+      const targetDpi = document.getElementById("targetDpi");
+      const minKb = document.getElementById("minKb");
+      const maxKb = document.getElementById("maxKb");
+
+      const zoomRange = document.getElementById("zoomRange");
+      const zoomVal = document.getElementById("zoomVal");
+      const angleRange = document.getElementById("angleRange");
+      const angleVal = document.getElementById("angleVal");
+      const btnRotL = document.getElementById("btnRotL");
+      const btnRotR = document.getElementById("btnRotR");
+      const btnFit = document.getElementById("btnFit");
+
+      const inkToggle = document.getElementById("inkToggle");
+      const inkBox = document.getElementById("inkBox");
+      const inkThreshold = document.getElementById("inkThreshold");
+      const inkVal = document.getElementById("inkVal");
+
+      const stampToggle = document.getElementById("stampToggle");
+      const stampBox = document.getElementById("stampBox");
+      const stampName = document.getElementById("stampName");
+      const stampDate = document.getElementById("stampDate");
+
+      const statInput = document.getElementById("statInput");
+      const statPixels = document.getElementById("statPixels");
+      const statDpi = document.getElementById("statDpi");
+      const statQuality = document.getElementById("statQuality");
+      const statOutputSize = document.getElementById("statOutputSize");
+      const badgeStatus = document.getElementById("badgeStatus");
+      const btnDownload = document.getElementById("btnDownload");
+
+      const now = new Date();
+      stampDate.value =
+        String(now.getDate()).padStart(2, "0") + "/" +
+        String(now.getMonth() + 1).padStart(2, "0") + "/" +
+        now.getFullYear();
+
+      function clampZoom(z) {
+        return Math.max(MIN_ZOOM, Math.min(MAX_ZOOM, z));
+      }
+
+      // Multi-step halving pyramid for ultra-crisp downscaling of high-MP phone photos
+      function rebuildSteppedPyramid() {
+        if (!state.image) {
+          state.steppedSource = null;
+          state.steppedRatio = 1;
+          return;
+        }
+        const iw = state.image.naturalWidth;
+        const ih = state.image.naturalHeight;
+        const effW = iw * state.zoom;
+        const effH = ih * state.zoom;
+
+        // Only step-downsample when zoomed out below 0.5x
+        if (state.zoom >= 0.5 || iw < 400 || ih < 400) {
+          state.steppedSource = state.image;
+          state.steppedRatio = 1;
+          return;
+        }
+
+        let curW = iw;
+        let curH = ih;
+        let ratio = 1;
+        let src = state.image;
+
+        while (curW * 0.5 > Math.max(effW * 1.35, 160) && curH * 0.5 > Math.max(effH * 1.35, 160)) {
+          const nextW = Math.max(1, Math.round(curW * 0.5));
+          const nextH = Math.max(1, Math.round(curH * 0.5));
+          const stepCanvas = document.createElement("canvas");
+          stepCanvas.width = nextW;
+          stepCanvas.height = nextH;
+          const sCtx = stepCanvas.getContext("2d");
+          sCtx.imageSmoothingEnabled = true;
+          sCtx.imageSmoothingQuality = "high";
+          sCtx.drawImage(src, 0, 0, nextW, nextH);
+          src = stepCanvas;
+          curW = nextW;
+          curH = nextH;
+          ratio = curW / iw;
+        }
+
+        state.steppedSource = src;
+        state.steppedRatio = ratio;
+      }
+
+      function updateDimensions() {
+        const u = targetUnit.value;
+        const w = parseFloat(targetWidth.value) || 1;
+        const h = parseFloat(targetHeight.value) || 1;
+        const dpiVal = Math.max(72, Math.min(1200, parseInt(targetDpi.value, 10) || 200));
+
+        let pxW = w, pxH = h;
+        if (u === "cm") {
+          pxW = Math.round((w / 2.54) * dpiVal);
+          pxH = Math.round((h / 2.54) * dpiVal);
+        } else if (u === "mm") {
+          pxW = Math.round((w / 25.4) * dpiVal);
+          pxH = Math.round((h / 25.4) * dpiVal);
+        } else if (u === "inch") {
+          pxW = Math.round(w * dpiVal);
+          pxH = Math.round(h * dpiVal);
+        } else {
+          pxW = Math.round(w);
+          pxH = Math.round(h);
+        }
+
+        state.pixelW = Math.max(20, Math.min(4000, pxW));
+        state.pixelH = Math.max(20, Math.min(4000, pxH));
+        state.dpi = dpiVal;
+        state.minKb = Math.max(1, parseInt(minKb.value, 10) || 10);
+        state.maxKb = Math.max(state.minKb + 1, parseInt(maxKb.value, 10) || 20);
+
+        statPixels.textContent = state.pixelW + " × " + state.pixelH + " px";
+        statDpi.textContent = state.dpi.toString();
+      }
+
+      function setPreset(pKey) {
+        const p = PRESETS[pKey];
+        if (!p) return;
+        targetWidth.value = p.w;
+        targetHeight.value = p.h;
+        targetUnit.value = p.u;
+        targetDpi.value = p.dpi;
+        minKb.value = p.min;
+        maxKb.value = p.max;
+
+        if (p.sign) {
+          inkToggle.checked = true;
+          inkBox.classList.remove("hidden");
+          stampToggle.checked = false;
+          stampBox.classList.add("hidden");
+        } else {
+          inkToggle.checked = false;
+          inkBox.classList.add("hidden");
+        }
+
+        updateDimensions();
+        if (state.image) autoFit();
+        drawViewport();
+      }
+
+      examPreset.addEventListener("change", function () {
+        if (this.value !== "custom") setPreset(this.value);
+      });
+
+      [targetWidth, targetHeight, targetUnit, targetDpi, minKb, maxKb].forEach(function (el) {
+        el.addEventListener("input", function () {
+          examPreset.value = "custom";
+          updateDimensions();
+          drawViewport();
+        });
+      });
+
+      // Clean RAM-efficient Blob URL loader
+      function loadFile(file) {
+        if (!file || !file.type.match(/^image\//)) return;
+        state.fileName = file.name.replace(/\.[^/.]+$/, "") + "_exam.jpg";
+        state.fileSize = file.size;
+
+        if (state.inputUrl) {
+          URL.revokeObjectURL(state.inputUrl);
+          state.inputUrl = null;
+        }
+
+        const objUrl = URL.createObjectURL(file);
+        state.inputUrl = objUrl;
+
+        const img = new Image();
+        img.onload = function () {
+          state.image = img;
+          statInput.textContent = (file.size / 1024).toFixed(1) + " KB (" + img.naturalWidth + "×" + img.naturalHeight + ")";
+          uploadOverlay.classList.add("hidden");
+          btnDownload.removeAttribute("disabled");
+          badgeStatus.className = "badge-status valid";
+          badgeStatus.textContent = "Ready (" + state.minKb + "–" + state.maxKb + " KB)";
+
+          state.baseRot = 0;
+          state.fineRot = 0;
+          angleRange.value = "0";
+          angleVal.textContent = "0°";
+
+          resizeCanvas();
+          autoFit();
+          drawViewport();
+        };
+        img.src = objUrl;
+      }
+
+      fileInput.addEventListener("change", function (e) {
+        if (e.target.files && e.target.files[0]) loadFile(e.target.files[0]);
+      });
+
+      // Drag and drop file support
+      viewportArea.addEventListener("dragover", function (e) { e.preventDefault(); });
+      viewportArea.addEventListener("drop", function (e) {
+        e.preventDefault();
+        if (e.dataTransfer && e.dataTransfer.files && e.dataTransfer.files[0]) {
+          loadFile(e.dataTransfer.files[0]);
+        }
+      });
+
+      function autoFit() {
+        if (!state.image) return;
+        state.panX = 0;
+        state.panY = 0;
+        const rad = ((state.baseRot + state.fineRot) * Math.PI) / 180;
+        const rw = state.image.naturalWidth * Math.abs(Math.cos(rad)) + state.image.naturalHeight * Math.abs(Math.sin(rad));
+        const rh = state.image.naturalWidth * Math.abs(Math.sin(rad)) + state.image.naturalHeight * Math.abs(Math.cos(rad));
+        const scale = Math.max(state.pixelW / Math.max(1, rw), state.pixelH / Math.max(1, rh));
+        state.zoom = clampZoom(scale);
+        zoomRange.value = state.zoom.toFixed(3);
+        zoomVal.textContent = state.zoom.toFixed(2) + "x";
+        rebuildSteppedPyramid();
+      }
+
+      btnFit.addEventListener("click", function () { autoFit(); drawViewport(); });
+
+      zoomRange.addEventListener("input", function () {
+        state.zoom = clampZoom(parseFloat(this.value));
+        zoomVal.textContent = state.zoom.toFixed(2) + "x";
+        rebuildSteppedPyramid();
+        drawViewport();
+      });
+
+      angleRange.addEventListener("input", function () {
+        state.fineRot = parseFloat(this.value);
+        angleVal.textContent = state.fineRot + "°";
+        drawViewport();
+      });
+
+      btnRotL.addEventListener("click", function () {
+        state.baseRot = (state.baseRot - 90 + 360) % 360;
+        drawViewport();
+      });
+
+      btnRotR.addEventListener("click", function () {
+        state.baseRot = (state.baseRot + 90) % 360;
+        drawViewport();
+      });
+
+      inkToggle.addEventListener("change", function () {
+        if (this.checked) inkBox.classList.remove("hidden");
+        else inkBox.classList.add("hidden");
+        drawViewport();
+      });
+
+      inkThreshold.addEventListener("input", function () {
+        inkVal.textContent = this.value;
+        drawViewport();
+      });
+
+      stampToggle.addEventListener("change", function () {
+        if (this.checked) stampBox.classList.remove("hidden");
+        else stampBox.classList.add("hidden");
+        drawViewport();
+      });
+
+      stampName.addEventListener("input", drawViewport);
+      stampDate.addEventListener("input", drawViewport);
+
+      // Mouse Wheel Zoom on Desktop
+      viewportArea.addEventListener("wheel", function (e) {
+        if (!state.image) return;
+        e.preventDefault();
+        const factor = e.deltaY < 0 ? 1.08 : 0.92;
+        state.zoom = clampZoom(state.zoom * factor);
+        zoomRange.value = state.zoom.toFixed(3);
+        zoomVal.textContent = state.zoom.toFixed(2) + "x";
+        rebuildSteppedPyramid();
+        drawViewport();
+      }, { passive: false });
+
+      // Multi-Touch & Pointer Controls (Screen-Space Pan Independent of Rotation)
+      const touchMap = new Map();
+      let pinchStart = 0, zoomStart = 1.0;
+
+      viewportArea.addEventListener("pointerdown", function (e) {
+        if (!state.image || e.target === uploadOverlay || uploadOverlay.contains(e.target)) return;
+        touchMap.set(e.pointerId, { x: e.clientX, y: e.clientY });
+        if (touchMap.size === 1) {
+          state.isDrag = true;
+          state.dragX = e.clientX;
+          state.dragY = e.clientY;
+          state.originX = state.panX;
+          state.originY = state.panY;
+        } else if (touchMap.size === 2) {
+          state.isDrag = false;
+          const pts = Array.from(touchMap.values());
+          pinchStart = Math.hypot(pts[0].x - pts[1].x, pts[0].y - pts[1].y);
+          zoomStart = state.zoom;
+        }
+        try { viewportArea.setPointerCapture(e.pointerId); } catch (_) {}
+      });
+
+      viewportArea.addEventListener("pointermove", function (e) {
+        if (!state.image || !touchMap.has(e.pointerId)) return;
+        touchMap.set(e.pointerId, { x: e.clientX, y: e.clientY });
+
+        if (touchMap.size === 2 && pinchStart > 0) {
+          const pts = Array.from(touchMap.values());
+          const dist = Math.hypot(pts[0].x - pts[1].x, pts[0].y - pts[1].y);
+          state.zoom = clampZoom(zoomStart * (dist / pinchStart));
+          zoomRange.value = state.zoom.toFixed(3);
+          zoomVal.textContent = state.zoom.toFixed(2) + "x";
+          rebuildSteppedPyramid();
+          drawViewport();
+        } else if (touchMap.size === 1 && state.isDrag) {
+          const box = getCropBox();
+          // panX and panY are stored in output-canvas pixel space (post-rotation)
+          state.panX = state.originX + (e.clientX - state.dragX) / box.scale;
+          state.panY = state.originY + (e.clientY - state.dragY) / box.scale;
+          drawViewport();
+        }
+      });
+
+      function touchEnd(e) {
+        touchMap.delete(e.pointerId);
+        if (touchMap.size === 1) {
+          const rem = Array.from(touchMap.values())[0];
+          state.isDrag = true;
+          state.dragX = rem.x;
+          state.dragY = rem.y;
+          state.originX = state.panX;
+          state.originY = state.panY;
+        } else {
+          state.isDrag = false;
+          pinchStart = 0;
+        }
+        try { viewportArea.releasePointerCapture(e.pointerId); } catch (_) {}
+      }
+
+      viewportArea.addEventListener("pointerup", touchEnd);
+      viewportArea.addEventListener("pointercancel", touchEnd);
+
+      function resizeCanvas() {
+        const rect = viewportArea.getBoundingClientRect();
+        if (rect.width === 0) return;
+        const dpr = window.devicePixelRatio || 1;
+        canvas.width = Math.round(rect.width * dpr);
+        canvas.height = Math.round(rect.height * dpr);
+        drawViewport();
+      }
+      window.addEventListener("resize", resizeCanvas);
+
+      function getCropBox() {
+        const dpr = window.devicePixelRatio || 1;
+        const vw = canvas.width / dpr, vh = canvas.height / dpr;
+        const pad = 22;
+        const aw = Math.max(40, vw - pad * 2);
+        const ah = Math.max(40, vh - pad * 2);
+        const aspect = state.pixelW / state.pixelH;
+        let bw = aw, bh = bw / aspect;
+        if (bh > ah) {
+          bh = ah;
+          bw = bh * aspect;
+        }
+        return {
+          x: (vw - bw) / 2,
+          y: (vh - bh) / 2,
+          w: bw,
+          h: bh,
+          scale: bw / state.pixelW
+        };
+      }
+
+      // Smooth anti-aliased signature enhancer
+      function applySmoothInkFilter(context, w, h, threshold) {
+        const imgD = context.getImageData(0, 0, w, h);
+        const d = imgD.data;
+        const th = threshold;
+        const ramp = 28;
+
+        for (let i = 0; i < d.length; i += 4) {
+          const lum = 0.299 * d[i] + 0.587 * d[i + 1] + 0.114 * d[i + 2];
+          if (lum >= th + ramp) {
+            d[i] = 255;
+            d[i + 1] = 255;
+            d[i + 2] = 255;
+          } else if (lum <= th - ramp) {
+            const f = 0.32 * (lum / Math.max(1, th - ramp));
+            d[i] = Math.floor(d[i] * f);
+            d[i + 1] = Math.floor(d[i + 1] * f);
+            d[i + 2] = Math.floor(d[i + 2] * f);
+          } else {
+            const t = (lum - (th - ramp)) / (ramp * 2);
+            const factor = t * t * (3 - 2 * t);
+            d[i] = Math.floor(d[i] * (1 - factor) * 0.38 + 255 * factor);
+            d[i + 1] = Math.floor(d[i + 1] * (1 - factor) * 0.38 + 255 * factor);
+            d[i + 2] = Math.floor(d[i + 2] * (1 - factor) * 0.38 + 255 * factor);
+          }
+        }
+        context.putImageData(imgD, 0, 0);
+      }
+
+      // Auto-fitting banner text helper so long names never overflow horizontally
+      function drawFittedBannerText(context, text, centerX, baselineY, maxWidth, initialFontPx) {
+        let fontPx = initialFontPx;
+        context.font = "bold " + fontPx + "px system-ui, -apple-system, sans-serif";
+        while (fontPx > 7 && context.measureText(text).width > maxWidth) {
+          fontPx -= 1;
+          context.font = "bold " + fontPx + "px system-ui, -apple-system, sans-serif";
+        }
+        context.fillText(text, centerX, baselineY, maxWidth);
+      }
+
+      // Exact export canvas builder (also used for live WYSIWYG preview)
+      function buildExportCanvas() {
+        const out = document.createElement("canvas");
+        out.width = state.pixelW;
+        out.height = state.pixelH;
+        const c = out.getContext("2d");
+
+        c.imageSmoothingEnabled = true;
+        c.imageSmoothingQuality = "high";
+        c.fillStyle = "#ffffff";
+        c.fillRect(0, 0, out.width, out.height);
+
+        const src = state.steppedSource || state.image;
+        const ratio = state.steppedRatio || 1;
+
+        c.save();
+        // Translate in output canvas coordinates FIRST so panX/panY never invert when rotated!
+        c.translate(out.width / 2 + state.panX, out.height / 2 + state.panY);
+        c.rotate(((state.baseRot + state.fineRot) * Math.PI) / 180);
+        const effectiveScale = state.zoom / ratio;
+        c.scale(effectiveScale, effectiveScale);
+
+        const sw = src.width || src.naturalWidth;
+        const sh = src.height || src.naturalHeight;
+        c.drawImage(src, -sw / 2, -sh / 2, sw, sh);
+        c.restore();
+
+        if (inkToggle.checked) {
+          applySmoothInkFilter(c, out.width, out.height, parseInt(inkThreshold.value, 10));
+        }
+
+        if (stampToggle.checked) {
+          const bh = Math.round(out.height * 0.18);
+          const by = out.height - bh;
+          c.fillStyle = "#ffffff";
+          c.fillRect(0, by, out.width, bh);
+          c.fillStyle = "#000000";
+          c.textAlign = "center";
+          c.textBaseline = "alphabetic";
+
+          const baseFont = Math.max(9, Math.floor(bh * 0.33));
+          const maxTextW = Math.max(20, out.width - 10);
+          const nameStr = (stampName.value.trim() || "CANDIDATE NAME").toUpperCase();
+          const dateStr = (stampDate.value.trim() || "DD/MM/YYYY").toUpperCase();
+
+          drawFittedBannerText(c, nameStr, out.width / 2, by + bh * 0.42, maxTextW, baseFont);
+          drawFittedBannerText(c, dateStr, out.width / 2, by + bh * 0.82, maxTextW, baseFont);
+        }
+
+        return out;
+      }
+
+      function drawViewport() {
+        const dpr = window.devicePixelRatio || 1;
+        const vw = canvas.width / dpr, vh = canvas.height / dpr;
+        if (!vw || !vh) return;
+
+        ctx.save();
+        ctx.scale(dpr, dpr);
+        ctx.clearRect(0, 0, vw, vh);
+        ctx.fillStyle = "#060911";
+        ctx.fillRect(0, 0, vw, vh);
+
+        const crop = getCropBox();
+
+        if (state.image) {
+          // 1. Draw dimmed ghost image across full viewport for easy positioning context
+          ctx.save();
+          ctx.translate(crop.x + (state.pixelW / 2 + state.panX) * crop.scale, crop.y + (state.pixelH / 2 + state.panY) * crop.scale);
+          ctx.rotate(((state.baseRot + state.fineRot) * Math.PI) / 180);
+          const s = crop.scale * state.zoom;
+          ctx.scale(s, s);
+          const iw = state.image.naturalWidth, ih = state.image.naturalHeight;
+          ctx.globalAlpha = 0.22;
+          ctx.drawImage(state.image, -iw / 2, -ih / 2, iw, ih);
+          ctx.restore();
+
+          // 2. Render exact processed export canvas inside the active crop box (shows live Ink Filter + Banner!)
+          const liveExport = buildExportCanvas();
+          ctx.save();
+          ctx.imageSmoothingEnabled = true;
+          ctx.imageSmoothingQuality = "high";
+          ctx.drawImage(liveExport, crop.x, crop.y, crop.w, crop.h);
+          ctx.restore();
+        }
+
+        // Crisp rounded-look border & rule-of-thirds guides
+        ctx.strokeStyle = "#38bdf8";
+        ctx.lineWidth = 2;
+        ctx.strokeRect(crop.x, crop.y, crop.w, crop.h);
+
+        ctx.strokeStyle = "rgba(255, 255, 255, 0.18)";
+        ctx.lineWidth = 1;
+        ctx.beginPath();
+        ctx.moveTo(crop.x + crop.w / 3, crop.y);
+        ctx.lineTo(crop.x + crop.w / 3, crop.y + crop.h);
+        ctx.moveTo(crop.x + (crop.w * 2) / 3, crop.y);
+        ctx.lineTo(crop.x + (crop.w * 2) / 3, crop.y + crop.h);
+        ctx.moveTo(crop.x, crop.y + crop.h / 3);
+        ctx.lineTo(crop.x + crop.w, crop.y + crop.h / 3);
+        ctx.moveTo(crop.x, crop.y + (crop.h * 2) / 3);
+        ctx.lineTo(crop.x + crop.w, crop.y + (crop.h * 2) / 3);
+        ctx.stroke();
+
+        ctx.restore();
+      }
+
+      function toBlobQ(c, q) {
+        return new Promise(function (res) { c.toBlob(res, "image/jpeg", q); });
+      }
+
+      function injectDpi(bytes, dpiVal) {
+        const h = (dpiVal >> 8) & 0xff, l = dpiVal & 0xff;
+        if (bytes[0] !== 0xff || bytes[1] !== 0xd8) return bytes;
+        if (bytes[2] === 0xff && bytes[3] === 0xe0 && bytes[6] === 0x4a) {
+          const u = new Uint8Array(bytes);
+          u[13] = 1;
+          u[14] = h;
+          u[15] = l;
+          u[16] = h;
+          u[17] = l;
+          return u;
+        }
+        const app0 = new Uint8Array([
+          0xff, 0xe0, 0x00, 0x10,
+          0x4a, 0x46, 0x49, 0x46, 0x00,
+          0x01, 0x01, 0x01,
+          h, l, h, l,
+          0x00, 0x00
+        ]);
+        const res = new Uint8Array(2 + app0.length + (bytes.length - 2));
+        res[0] = 0xff;
+        res[1] = 0xd8;
+        res.set(app0, 2);
+        res.set(bytes.subarray(2), 2 + app0.length);
+        return res;
+      }
+
+      // Multi-segment JPEG Comment (0xFF 0xFE) padding (supports >64 KB padding seamlessly)
+      function padBytesToTarget(bytes, targetLen) {
+        if (bytes.length >= targetLen) return bytes;
+
+        let eoi = bytes.length - 2;
+        while (eoi > 0) {
+          if (bytes[eoi] === 0xff && bytes[eoi + 1] === 0xd9) break;
+          eoi--;
+        }
+        if (eoi <= 0) eoi = bytes.length;
+
+        let needed = targetLen - bytes.length;
+        const segments = [];
+
+        while (needed > 0) {
+          // Each COM segment adds (segLen + 2) total bytes to the file
+          if (needed < 6) {
+            needed = 6;
+          }
+          const totalChunk = Math.min(65535, needed);
+          const segLen = totalChunk - 2; // length field includes its own 2 bytes
+          const seg = new Uint8Array(totalChunk);
+          seg[0] = 0xff;
+          seg[1] = 0xfe;
+          seg[2] = (segLen >> 8) & 0xff;
+          seg[3] = segLen & 0xff;
+          seg.fill(0x20, 4);
+          segments.push(seg);
+          needed -= totalChunk;
+        }
+
+        let extraTotal = 0;
+        for (let i = 0; i < segments.length; i++) extraTotal += segments[i].length;
+
+        const out = new Uint8Array(bytes.length + extraTotal);
+        out.set(bytes.subarray(0, eoi), 0);
+        let offset = eoi;
+        for (let i = 0; i < segments.length; i++) {
+          out.set(segments[i], offset);
+          offset += segments[i].length;
+        }
+        out.set(bytes.subarray(eoi), offset);
+        return out;
+      }
+
+      async function processExport() {
+        if (!state.image) return;
+        btnDownload.textContent = "Processing Exact JPEG...";
+        btnDownload.disabled = true;
+
+        try {
+          rebuildSteppedPyramid();
+          const off = buildExportCanvas();
+          const minB = state.minKb * 1024;
+          const maxB = state.maxKb * 1024;
+          // Aim safely inside the [minB, maxB] window (leave 256-byte margin below maxB)
+          const safeMaxB = Math.max(minB + 256, maxB - 256);
+          const targetMid = Math.floor((minB + safeMaxB) / 2);
+
+          let selectedQuality = 0.98;
+          let bestBlob = await toBlobQ(off, 0.98);
+
+          if (bestBlob.size > safeMaxB) {
+            // Initialize fallback to lowest floor (0.02) so we always have a valid candidate
+            let low = 0.02, high = 0.98;
+            bestBlob = await toBlobQ(off, low);
+            selectedQuality = low;
+
+            for (let i = 0; i < 11; i++) {
+              const mid = (low + high) / 2;
+              const candidate = await toBlobQ(off, mid);
+              if (candidate.size <= safeMaxB) {
+                bestBlob = candidate;
+                selectedQuality = mid;
+                low = mid; // try higher quality while staying <= safeMaxB
+              } else {
+                high = mid; // too large, lower quality
+              }
+            }
+          }
+
+          statQuality.textContent = Math.round(selectedQuality * 100) + "%";
+
+          let arr = new Uint8Array(await bestBlob.arrayBuffer());
+          arr = injectDpi(arr, state.dpi);
+
+          if (arr.length < minB) {
+            arr = padBytesToTarget(arr, targetMid);
+          }
+
+          const finalBlob = new Blob([arr], { type: "image/jpeg" });
+          const kb = finalBlob.size / 1024;
+          statOutputSize.textContent = kb.toFixed(2) + " KB";
+
+          if (finalBlob.size >= minB && finalBlob.size <= maxB) {
+            badgeStatus.className = "badge-status valid";
+            badgeStatus.textContent = "VALID (" + kb.toFixed(1) + " KB)";
+          } else {
+            badgeStatus.className = "badge-status invalid";
+            badgeStatus.textContent = "OUT OF RANGE (" + kb.toFixed(1) + " KB)";
+          }
+
+          if (state.lastUrl) URL.revokeObjectURL(state.lastUrl);
+          state.lastUrl = URL.createObjectURL(finalBlob);
+
+          const a = document.createElement("a");
+          a.href = state.lastUrl;
+          a.download = state.fileName;
+          document.body.appendChild(a);
+          a.click();
+          document.body.removeChild(a);
+        } catch (err) {
+          alert("Export failed: " + (err && err.message ? err.message : "Unknown error"));
+        } finally {
+          btnDownload.textContent = "Process & Download Exact JPEG";
+          btnDownload.removeAttribute("disabled");
+        }
+      }
+
+      btnDownload.addEventListener("click", processExport);
+
+      updateDimensions();
+      setTimeout(resizeCanvas, 60);
+    })();
+  </script>
+</body>
+</html>
