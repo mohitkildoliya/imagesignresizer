@@ -48,4 +48,11 @@ Most "free online photo resizers" upload your passport photo, signature, full na
 * **Embed on Any Website / Blog:**
   ```html
   <iframe src="[https://mohitkildoliya.github.io/photo-sign-resizer/](https://mohitkildoliya.github.io/photo-sign-resizer/)" width="100%" height="720px" style="border:none; border-radius:16px;"></iframe>
-  
+
+## 📱 Interface Preview
+
+<p align="center">
+  <img src="./screenshot-dark.jpg" alt="Dark Mode UI" width="270" style="border-radius: 12px; margin-right: 10px;" />
+  <img src="./screenshot-light.jpg" alt="Light Mode UI" width="270" style="border-radius: 12px;" />
+</p>
+
