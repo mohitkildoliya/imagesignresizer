@@ -52,7 +52,7 @@ Most "free online photo resizers" upload your passport photo, signature, full na
 ## 📱 Interface Preview
 
 <p align="center">
-  <img src="./screenshot-dark.jpg" alt="Dark Mode UI" width="270" style="border-radius: 12px; margin-right: 10px;" />
-  <img src="./screenshot-light.jpg" alt="Light Mode UI" width="270" style="border-radius: 12px;" />
+  <img src="./Screenshot-dark.jpg" alt="Dark Mode UI" width="270" style="border-radius: 12px; margin-right: 10px;" />
+  <img src="./Screenshot-light.jpg" alt="Light Mode UI" width="270" style="border-radius: 12px;" />
 </p>
 
