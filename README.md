@@ -7,7 +7,7 @@
 
 A **100% offline, zero-network, single-file web utility** built with Vanilla JavaScript and the HTML5 Canvas API. Designed for strict online application portals, it resizes photos and signatures, locks output files to exact kilobyte (KB) ranges, injects custom DPI metadata headers, and whitens signature paper—**entirely inside local volatile RAM**.
 
-🔗 **Live Tool:** [https://mohitkildoliya.github.io/photo-sign-resizer/](https://mohitkildoliya.github.io/photo-sign-resizer/)
+🔗 **Live Tool:** [https://imagesignresizer.dpdns.org/](https://imagesignresizer.dpdns.org/)
 
 ---
 
@@ -43,11 +43,11 @@ Most "free online photo resizers" upload your passport photo, signature, full na
 
 ## 🚀 Usage (Online & Offline)
 
-* **Use Online:** Open the [GitHub Pages live link](https://mohitkildoliya.github.io/photo-sign-resizer/). Once loaded, you can turn off Wi-Fi/mobile data and use it completely offline.
+* **Use Online:** Open the [Website](https://imagesignresizer.dpdns.org/). Once loaded, you can turn off Wi-Fi/mobile data and use it completely offline.
 * **Use 100% Offline Locally:** Download `index.html` from this repository and open it in any mobile or desktop browser.
 * **Embed on Any Website / Blog:**
   ```html
-  <iframe src="[https://mohitkildoliya.github.io/photo-sign-resizer/](https://mohitkildoliya.github.io/photo-sign-resizer/)" width="100%" height="720px" style="border:none; border-radius:16px;"></iframe>
+  <iframe src="[https://imagesignresizer.dpdns.org/](https://imagesignresizer.dpdns.org/)" width="100%" height="720px" style="border:none; border-radius:16px;"></iframe>
 
 ## 📱 Interface Preview
 
