@@ -1,4 +1,4 @@
-# Photo & Sign Resizer Tool (v1.2)
+# Image & Sign Resizer Tool (v1.2)
 
 ![Version](https://img.shields.io/badge/version-v1.2-22c55e?style=flat-square)
 ![Privacy](https://img.shields.io/badge/network-zero%20CSP%20locked-ff9933?style=flat-square)
